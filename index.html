@@ -422,7 +422,7 @@
         let widgets = JSON.parse(localStorage.getItem('my_widgets')) || [];
         let currentWidget = null;
         let selectedElementId = null;
-        const CANVAS_SIZE = 300; 
+        const CANVAS_SIZE = 200; 
         const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+/PvoK2SMAAAAdSURBVHja7MExAQAAAMKg9U9tCy8gAAAAAAAADwYSnAABs8H01AAAAABJRU5ErkJggg==";
 
         // --- Initialization ---
@@ -769,7 +769,7 @@
 
             // Adjust slider logic for images
             if (data.type === 'image') {
-                sizeInput.max = 300;
+                sizeInput.max = 400;
             } else {
                 sizeInput.max = 100;
             }
