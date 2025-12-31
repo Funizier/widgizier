@@ -400,7 +400,7 @@
                 <div class="form-group">
                     <label class="form-label">Presets</label>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <div class="bg-preset" data-bg="var(--search-background)" style="width: 40px; height: 40px; border-radius: 50%; background: var(--search-background); border: 1px solid var(--glass-border); cursor: pointer;"></div>
+                        <div class="bg-preset" data-bg="transparent" style="width: 40px; height: 40px; border-radius: 50%; background: transparent; border: 1px solid var(--glass-border); cursor: pointer;"></div>
                         <div class="bg-preset" data-bg="linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); border: 1px solid var(--glass-border); cursor: pointer;"></div>
                         <div class="bg-preset" data-bg="linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); border: 1px solid var(--glass-border); cursor: pointer;"></div>
                     </div>
@@ -600,8 +600,8 @@
             const id = 'w_' + Date.now();
             currentWidget = {
                 id: id,
-                name: 'New Widget ' + (widgets.length + 1),
-                background: 'var(--search-background)',
+                name: 'Widgizier ' + (widgets.length + 1),
+                background: 'transparent',
                 elements: []
             };
             openEditor();
