@@ -868,12 +868,12 @@
             localStorage.setItem('my_widgets', JSON.stringify(widgets));
             
             Gurasuraisu.registerWidget({
-                appName: 'Widget Maker',
+                appName: 'Widgizier',
                 widgetId: currentWidget.id,
                 title: currentWidget.name,
-                url: `/widget-maker.html?widgetId=${currentWidget.id}`,
+                url: `https://funizier.github.io/widgizier/index.html?widgetId=${currentWidget.id}`,
                 defaultSize: [1, 1],
-                openUrl: '/widget-maker.html'
+                openUrl: 'https://funizier.github.io/widgizier/index.html'
             });
 
             Gurasuraisu.showPopup('Widget saved');
