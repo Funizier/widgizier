@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Widgizier</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0" />
+    <script src="https://polygol.github.io/assets/gurapp/api/gurasuraisu-api.js" defer></script>
+    <style>
+        :root {
+            --edge-refraction-filter: url('#edge-refraction-only');
+            --sun-shadow: 0 0 0 0 transparent;
+            
+            /* Dark Theme (Default) Variables */
+            --background-color-dark: #1c1c1c;
+            --background-color-dark-tr: rgba(28, 28, 28, 0.7);
+            --text-color-dark: #f9f9f9;
+            --secondary-text-color-dark: rgba(255, 255, 255, 0.7);
+            --accent-dark: rgba(255, 255, 255, 0.7);
+            --modal-background-dark: rgba(51, 51, 51, 0.8);
+            --modal-transparent-dark: rgba(51, 51, 51, 0.7);
+            --search-background-dark: rgba(51, 51, 51, 0.5);
+            --dark-overlay: rgba(51, 51, 51, 0.2);
+            --dark-transparent: rgba(255, 255, 255, 0.1); 
+            --glass-border-dark: rgba(100, 100, 100, 0.2);
+            
+            /* Light Theme Variables */
+            --background-color-light: #f0f0f0;
+            --background-color-light-tr: rgba(240, 240, 240, 0.7);
+            --text-color-light: #333333;
+            --secondary-text-color-light: rgba(0, 0, 0, 0.7);
+            --accent-light: rgba(0, 0, 0, 0.7);
+            --modal-background-light: rgba(220, 220, 220, 0.8);
+            --modal-transparent-light: rgba(240, 240, 240, 0.7);
+            --search-background-light: rgba(220, 220, 220, 0.5);
+            --light-overlay: rgba(220, 220, 220, 0.2);
+            --light-transparent: rgba(255, 255, 255, 0.1);
+            --glass-border-light: rgba(200, 200, 200, 0.2);
+            
+            /* Base */
+            --background-color: var(--background-color-dark);
+            --background-color-tr: var(--background-color-dark-tr);
+            --text-color: var(--text-color-dark);
+            --secondary-text-color: var(--secondary-text-color-dark);
+            --accent: var(--accent-dark);
+            --search-background: var(--search-background-dark);
+            --glass-border: var(--glass-border-dark);
+            --overlay-color: var(--dark-overlay);
+        }
+
+        body.light-theme {
+            --background-color: var(--background-color-light);
+            --background-color-tr: var(--background-color-light-tr);
+            --text-color: var(--text-color-light);
+            --secondary-text-color: var(--secondary-text-color-light);
+            --accent: var(--accent-light);
+            --search-background: var(--search-background-light);
+            --glass-border: var(--glass-border-light);
+            --overlay-color: var(--light-overlay);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--background-color-tr);
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Widget Renderer Mode - Overrides */
+        body.widget-mode {
+            background: transparent !important;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .view-container {
+            flex-grow: 1;
+            width: 100%;
+            height: 100vh;
+            padding: 80px 20px 20px 20px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .view-container.active {
+            display: flex;
+        }
+
+        .page-content-wrapper {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding-bottom: 40px;
+        }
+
+        .item-card {
+            background-color: var(--search-background);
+            border-radius: 35px;
+            corner-shape: superellipse(1.5);
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--edge-refraction-filter) saturate(2) blur(5px);
+            box-shadow: var(--sun-shadow);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .create-bar {
+            background-color: var(--search-background);
+            border-radius: 35px;
+            corner-shape: superellipse(1.5);
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--edge-refraction-filter) saturate(2) blur(5px);
+            box-shadow: var(--sun-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: fixed;
+            bottom: 25px;
+        }
+
+        .secondary-btn {
+            background-color: var(--search-background);
+            color: var(--text-color);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            backdrop-filter: var(--edge-refraction-filter) saturate(2) blur(2.5px);
+            box-shadow: var(--sun-shadow);
+        }
+
+        .tool-btn {
+            color: var(--text-color);
+            background-color: transparent;
+            padding: 8px 16px;
+            border: none;
+        }
+
+        /* --- Modal CSS Copied from Fantaskical --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--overlay-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(.3, 1.2, .64, 1);
+            transform: scale(0.9);
+            filter: blur(5px);
+        }
+        
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+            transition-delay: 0s;
+            transform: none;
+            filter: none;
+            border-radius: 0;
+        }
+        
+        .modal-content {
+            background-color: var(--search-background);
+            border-radius: 50px;
+            corner-shape: superellipse(1.5);
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            border: 1px solid var(--glass-border);
+            backdrop-filter: var(--edge-refraction-filter) saturate(2) blur(5px);
+            box-shadow: var(--sun-shadow), 0 0 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 0 8px;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            font-family: 'Open Runde';
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+        }
+        
+        .form-input {
+            padding: 12px 16px;
+            border-radius: 25px;
+            corner-shape: superellipse(1.5);
+            border: 1px solid var(--glass-border);
+            background-color: var(--search-background);
+            color: var(--text-color);
+            box-shadow: var(--sun-shadow);
+            font-size: 1rem;
+            outline: none;
+            width: 100%;
+        }
+        
+        .submit-btn {
+            background-color: var(--accent);
+            color: var(--background-color);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            box-shadow: var(--sun-shadow);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Helper for the editor canvas --- */
+        .editor-canvas-box {
+            position: relative;
+            background: rgba(0,0,0,0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 35px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--sun-shadow);
+            transform-origin: top;
+            transform: scale(4);
+        }
+
+        @media (max-width: 800px) {
+            .editor-canvas-box {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body data-app-name="WIDGET-MAKER">
+    <!-- SVG Filters -->
+    <svg style="display: none">
+        <filter id="edge-refraction-only" color-interpolation-filters="linearRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" result="turbulence"></feTurbulence>
+            <feMorphology in="SourceGraphic" operator="erode" radius="4" result="eroded"></feMorphology>
+            <feComposite in="SourceGraphic" in2="eroded" operator="out" result="border_mask"></feComposite>
+            <feComposite in="turbulence" in2="border_mask" operator="in" result="edge_turbulence"></feComposite>
+            <feDisplacementMap in="SourceGraphic" in2="edge_turbulence" scale="15" xChannelSelector="R" yChannelSelector="G" result="disp_positive"></feDisplacementMap>
+            <feDisplacementMap in="SourceGraphic" in2="edge_turbulence" scale="-15" xChannelSelector="R" yChannelSelector="G" result="disp_negative"></feDisplacementMap>
+            <feBlend in="disp_positive" in2="disp_negative" mode="lighten" result="blended_image"></feBlend>
+            <feComponentTransfer in="blended_image"><feFuncA type="linear" slope="0.95"></feFuncA></feComponentTransfer>
+        </filter>
+    </svg>
+
+    <!-- Toolbar (App Mode Only) -->
+    <div class="toolbar" id="app-toolbar">
+        <button class="tab-btn active" id="nav-dashboard" data-tab="dashboard">
+            <span class="material-symbols-rounded">home</span>
+            Home
+        </button>
+        <button class="tab-btn" id="nav-create" data-tab="create">
+            <span class="material-symbols-rounded">add</span>
+            Create
+        </button>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="view-container active">
+        <div class="page-content-wrapper">
+            <strong style="color: var(--secondary-text-color); font-size: 0.8rem;">Funizier</strong>
+            <h2 style="font-family: 'Open Runde'; margin-bottom: 10px;">Widgizier</h2>
+            <div id="widgets-list" style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- Widgets injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor View -->
+    <div id="editor-view" class="view-container">
+        <div class="page-content-wrapper" style="align-items: center;">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+                <button class="secondary-btn" id="btn-save" style="width: auto; padding: 10px 16px; margin: 0;">Save</button>
+            </div>
+
+            <!-- Canvas Area -->
+            <div id="canvas-wrapper" class="editor-canvas-box" style="width: 200px; height: 200px;">
+                <div id="editor-canvas" style="width: 100%; height: 100%; position: relative; background-size: cover; background-position: center;"></div>
+            </div>
+
+            <!-- Controls Area -->
+            <div class="create-bar">
+                <!-- Tools -->
+                <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="tool-btn" id="tool-text"><span class="material-symbols-rounded">text_fields</span></button>
+                    <button class="tool-btn" id="tool-icon"><span class="material-symbols-rounded">sentiment_satisfied</span></button>
+                    <button class="tool-btn" id="tool-image"><span class="material-symbols-rounded">image</span></button>
+                    <button class="tool-btn" id="tool-clock"><span class="material-symbols-rounded">schedule</span></button>
+                    <button class="tool-btn" id="tool-date"><span class="material-symbols-rounded">calendar_today</span></button>
+                    <button class="tool-btn" id="tool-bg"><span class="material-symbols-rounded">wallpaper</span></button>
+                </div>
+
+                <!-- Inspector -->
+                <div id="inspector" style="display: none; flex-direction: column; gap: 15px; padding-top: 15px; border-top: 1px solid var(--glass-border);">
+                    <strong style="color: var(--secondary-text-color); font-size: 0.8rem;">PROPERTIES</strong>
+                    
+                    <div id="prop-content-group">
+                        <input type="text" class="form-input" id="prop-content" placeholder="Content">
+                    </div>
+                    
+                    <button class="secondary-btn" id="btn-upload-img" style="display:none; justify-content: center;">Change Image</button>
+
+                    <!-- Typography Settings -->
+                    <div id="prop-font-group" style="display:none; flex-direction: column; gap: 8px;">
+                        <select id="prop-font-family" class="form-input" style="padding: 8px;">
+                            <option value="'Inter', sans-serif">Inter (Default)</option>
+                            <option value="'Open Runde', sans-serif">Round</option>
+                            <option value="'Times New Roman', serif">Serif</option>
+                            <option value="'Courier New', monospace">Monospace</option>
+                            <option value="'Brush Script MT', cursive">Script</option>
+                            <option value="custom">Custom (Web Font)</option>
+                        </select>
+                        <div id="prop-custom-font-box" style="display:none; flex-direction: column; gap: 5px;">
+                            <div style="display: flex; gap: 5px;">
+                                <input type="text" id="prop-font-url" class="form-input" placeholder="https://example.com/font.woff2">
+                                <button id="btn-apply-font" class="secondary-btn" style="padding: 0 10px;">Load</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="color" id="prop-color" style="height: 40px; border: none; background: none; cursor: pointer;">
+                        <input type="range" min="10" max="100" class="form-input" style="padding: 0;" id="prop-size">
+                    </div>
+
+                    <button class="secondary-btn" id="btn-delete-element" style="justify-content: center;">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Modal -->
+    <div id="bg-modal" class="modal-overlay">
+        <div class="modal-content" id="bg-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Set background</div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:15px;">
+                <div class="form-group">
+                    <label class="form-label">Solid color</label>
+                    <input type="color" id="bg-solid-color" style="width:100%; height: 40px; border:none; background:none;">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Presets</label>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <div class="bg-preset" data-bg="var(--search-background)" style="width: 40px; height: 40px; border-radius: 50%; background: var(--search-background); border: 1px solid var(--glass-border); cursor: pointer;"></div>
+                        <div class="bg-preset" data-bg="linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); border: 1px solid var(--glass-border); cursor: pointer;"></div>
+                        <div class="bg-preset" data-bg="linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); border: 1px solid var(--glass-border); cursor: pointer;"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Image</label>
+                    <button class="submit-btn" id="btn-upload-bg" style="margin-top:0;">Upload Image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIDGET RENDER CONTAINER (Only visible in Widget Mode) -->
+    <div id="widget-root" style="display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden;"></div>
+
+    <script>
+        // --- State ---
+        let widgets = JSON.parse(localStorage.getItem('my_widgets')) || [];
+        let currentWidget = null;
+        let selectedElementId = null;
+        const CANVAS_SIZE = 300; 
+        const PLACEHOLDER_IMG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAIAAAD/gAIDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+/PvoK2SMAAAAdSURBVHja7MExAQAAAMKg9U9tCy8gAAAAAAAADwYSnAABs8H01AAAAABJRU5ErkJggg==";
+
+        // --- Initialization ---
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const widgetId = params.get('widgetId');
+
+            if (widgetId) {
+                enterWidgetMode(widgetId);
+            } else {
+                renderDashboard();
+                setupEventListeners();
+            }
+        });
+
+        async function handleImageUpload(callback) {
+            try {
+                const files = await Gurasuraisu.requestFile({ accept: 'image/*', multiple: false });
+                if (files && files.length > 0) {
+                    const file = files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        callback(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } catch (e) {
+                console.error("Upload failed", e);
+            }
+        }
+
+        async function loadAndRegisterFont(name, url) {
+            try {
+                const font = new FontFace(name, `url(${url})`);
+                await font.load();
+                document.fonts.add(font);
+                return true;
+            } catch (e) {
+                console.error("Font load error", e);
+                Gurasuraisu.showPopup("Failed to load font");
+                return false;
+            }
+        }
+
+        function setupEventListeners() {
+            // Navigation Tabs
+            document.getElementById('nav-dashboard').addEventListener('click', () => switchView('dashboard'));
+            document.getElementById('nav-create').addEventListener('click', createNewWidget);
+
+            // Editor Controls
+            document.getElementById('btn-save').addEventListener('click', saveCurrentWidget);
+            document.getElementById('btn-delete-element').addEventListener('click', deleteSelectedElement);
+
+            // Tools
+            document.getElementById('tool-text').addEventListener('click', () => addElement('text'));
+            document.getElementById('tool-icon').addEventListener('click', () => addElement('icon'));
+            document.getElementById('tool-image').addEventListener('click', () => addElement('image'));
+            document.getElementById('tool-clock').addEventListener('click', () => addElement('clock'));
+            document.getElementById('tool-date').addEventListener('click', () => addElement('date'));
+            document.getElementById('tool-bg').addEventListener('click', openBgModal);
+
+            // Property Inputs
+            document.getElementById('prop-content').addEventListener('input', (e) => updateSelectedProp('content', e.target.value));
+            document.getElementById('prop-color').addEventListener('input', (e) => updateSelectedProp('color', e.target.value));
+            document.getElementById('prop-size').addEventListener('input', (e) => updateSelectedProp('fontSize', e.target.value + 'px'));
+
+            document.getElementById('btn-upload-img').addEventListener('click', () => {
+                handleImageUpload((base64) => {
+                    updateSelectedProp('content', base64);
+                });
+            });
+
+            // Font Inputs
+            document.getElementById('prop-font-family').addEventListener('change', (e) => {
+                const val = e.target.value;
+                const customBox = document.getElementById('prop-custom-font-box');
+                
+                if (val === 'custom') {
+                    customBox.style.display = 'flex';
+                } else {
+                    customBox.style.display = 'none';
+                    updateSelectedProp('fontFamily', val);
+                    updateSelectedProp('customFontUrl', null);
+                }
+            });
+
+            document.getElementById('btn-apply-font').addEventListener('click', async () => {
+                const url = document.getElementById('prop-font-url').value.trim();
+                if (!url || !selectedElementId) return;
+                
+                const fontName = `CustomFont_${selectedElementId}`;
+                const success = await loadAndRegisterFont(fontName, url);
+                
+                if (success) {
+                    updateSelectedProp('fontFamily', fontName);
+                    updateSelectedProp('customFontUrl', url);
+                    Gurasuraisu.showPopup("Font loaded");
+                }
+            });
+
+            // Modal Background
+            document.getElementById('bg-modal').addEventListener('click', (e) => {
+                if (e.target.id === 'bg-modal') closeBgModal();
+            });
+            document.getElementById('bg-modal-content').addEventListener('click', (e) => e.stopPropagation());
+            
+            document.getElementById('bg-solid-color').addEventListener('change', (e) => setCanvasBg(e.target.value));
+            document.getElementById('btn-upload-bg').addEventListener('click', () => {
+                handleImageUpload((base64) => {
+                    setCanvasBg(`url(${base64})`);
+                });
+            });
+
+            document.querySelectorAll('.bg-preset').forEach(el => {
+                el.addEventListener('click', () => setCanvasBg(el.dataset.bg));
+            });
+
+            // Canvas Click (Deselect)
+            const canvas = document.getElementById('editor-canvas');
+            canvas.addEventListener('click', (e) => {
+                if (e.target === canvas) {
+                    deselectAll();
+                }
+            });
+        }
+
+        // --- Navigation ---
+        function switchView(view) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.getElementById(`${view}-view`).classList.add('active');
+            
+            // Update active state of tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (view === 'dashboard' && btn.id === 'nav-dashboard') btn.classList.add('active');
+                else if (view === 'editor' && btn.id === 'nav-create') btn.classList.add('active'); // Keep create active while editing for UX
+                else btn.classList.remove('active');
+            });
+
+            if (view === 'dashboard') {
+                document.getElementById('nav-create').classList.remove('active');
+                document.getElementById('nav-dashboard').classList.add('active');
+                renderDashboard();
+            }
+        }
+
+        // --- Dashboard Logic ---
+        function renderDashboard() {
+            const list = document.getElementById('widgets-list');
+            list.innerHTML = '';
+            
+            if (widgets.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--secondary-text-color);">No widgets found</div>';
+                return;
+            }
+
+            widgets.forEach(w => {
+                const el = document.createElement('div');
+                el.className = 'item-card';
+                el.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div style="width:50px; height:50px; border-radius:15px; background:${w.background}; border:1px solid var(--glass-border); background-size: cover; background-position: center;"></div>
+                        <div>
+                            <div style="font-weight:600; font-family: 'Open Runde';">${w.name}</div>
+                            <div style="font-size:0.8rem; color:var(--secondary-text-color);">${w.elements.length} elements</div>
+                        </div>
+                    </div>
+                    <span class="material-symbols-rounded">edit</span>
+                `;
+                el.addEventListener('click', () => editWidget(w.id));
+                list.appendChild(el);
+            });
+        }
+
+        function createNewWidget() {
+            const id = 'w_' + Date.now();
+            currentWidget = {
+                id: id,
+                name: 'New Widget ' + (widgets.length + 1),
+                background: 'var(--search-background)',
+                elements: []
+            };
+            openEditor();
+        }
+
+        async function editWidget(id) {
+            const widget = widgets.find(w => w.id === id);
+            if (widget) {
+                currentWidget = JSON.parse(JSON.stringify(widget));
+                await preloadWidgetFonts(currentWidget); // Load custom fonts first
+                openEditor();
+            }
+        }
+
+        function openEditor() {
+            switchView('editor');
+            renderEditorCanvas();
+            document.getElementById('inspector').style.display = 'none';
+            selectedElementId = null;
+        }
+
+        // --- Editor Core Logic ---
+        function renderEditorCanvas() {
+            const canvas = document.getElementById('editor-canvas');
+            canvas.innerHTML = '';
+            canvas.style.background = currentWidget.background;
+
+            currentWidget.elements.forEach(el => {
+                const domEl = createDomElement(el);
+                
+                // Styling handled inline/JS to avoid custom classes
+                domEl.style.position = 'absolute';
+                domEl.style.left = el.x + '%';
+                domEl.style.top = el.y + '%';
+                domEl.style.transform = 'translate(-50%, -50%)';
+                domEl.style.cursor = 'move';
+                domEl.style.minWidth = '20px';
+                domEl.style.minHeight = '20px';
+                domEl.style.display = 'flex';
+                domEl.style.alignItems = 'center';
+                domEl.style.justifyContent = 'center';
+                domEl.style.whiteSpace = 'nowrap';
+                
+                domEl.dataset.id = el.id;
+                
+                domEl.addEventListener('mousedown', startDrag);
+                domEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectElement(el.id);
+                });
+
+                canvas.appendChild(domEl);
+            });
+        }
+
+        function deselectAll() {
+            selectedElementId = null;
+            document.getElementById('inspector').style.display = 'none';
+            const canvas = document.getElementById('editor-canvas');
+            Array.from(canvas.children).forEach(c => {
+                c.style.border = '1px solid transparent';
+            });
+        }
+
+        function createDomElement(data) {
+            const div = document.createElement('div');
+            div.style.color = data.style.color;
+            div.style.fontSize = data.style.fontSize;
+            div.style.fontWeight = data.style.fontWeight || 'normal';
+            div.style.fontFamily = data.style.fontFamily || "'Inter', sans-serif";
+            
+            if (data.type === 'text') {
+                div.textContent = data.content;
+            } else if (data.type === 'icon') {
+                div.className = 'material-symbols-rounded';
+                div.textContent = data.content;
+                div.style.fontFamily = "'Material Symbols Rounded'";
+            } else if (data.type === 'image') {
+                const img = document.createElement('img');
+                img.src = data.content;
+                img.style.width = data.style.fontSize;
+                img.style.height = 'auto';
+                img.style.borderRadius = '10px';
+                img.draggable = false; // Prevent browser drag
+                div.appendChild(img);
+            } else if (data.type === 'clock') {
+                div.textContent = '12:00';
+            } else if (data.type === 'date') {
+                div.textContent = 'Mon 1';
+            }
+            return div;
+        }
+
+        function addElement(type) {
+            const newEl = {
+                id: 'el_' + Date.now(),
+                type: type,
+                x: 50,
+                y: 50,
+                style: {
+                    color: '#ffffff',
+                    fontSize: (type === 'icon' || type === 'image') ? '48px' : '24px',
+                    fontFamily: "'Inter', sans-serif"
+                },
+                content: type === 'text' ? 'Text' : (type === 'icon' ? 'star' : (type === 'image' ? PLACEHOLDER_IMG : ''))
+            };
+            currentWidget.elements.push(newEl);
+            renderEditorCanvas();
+            selectElement(newEl.id);
+        }
+
+        function selectElement(id) {
+            selectedElementId = id;
+            
+            // Visual selection
+            const canvas = document.getElementById('editor-canvas');
+            Array.from(canvas.children).forEach(c => {
+                c.style.border = c.dataset.id === id ? '1px dashed var(--accent)' : '1px solid transparent';
+            });
+
+            const data = currentWidget.elements.find(e => e.id === id);
+            if (!data) return;
+
+            document.getElementById('inspector').style.display = 'flex';
+            
+            // Populate inputs
+            const contentGroup = document.getElementById('prop-content-group');
+            const contentInput = document.getElementById('prop-content');
+            const sizeInput = document.getElementById('prop-size');
+            const uploadBtn = document.getElementById('btn-upload-img');
+            
+            // Typography Inputs
+            const fontGroup = document.getElementById('prop-font-group');
+            const fontSelect = document.getElementById('prop-font-family');
+            const customFontBox = document.getElementById('prop-custom-font-box');
+            const fontUrlInput = document.getElementById('prop-font-url');
+
+            // Handle Font Controls Visibility
+            if (['text', 'clock', 'date'].includes(data.type)) {
+                fontGroup.style.display = 'flex';
+                if (data.customFontUrl) {
+                    fontSelect.value = 'custom';
+                    customFontBox.style.display = 'flex';
+                    fontUrlInput.value = data.customFontUrl;
+                } else {
+                    fontSelect.value = data.style.fontFamily || "'Inter', sans-serif";
+                    customFontBox.style.display = 'none';
+                    fontUrlInput.value = '';
+                }
+            } else {
+                fontGroup.style.display = 'none';
+            }
+            
+            if (data.type === 'image') {
+                contentGroup.style.display = 'none';
+                uploadBtn.style.display = 'flex';
+            } else if (data.type === 'clock' || data.type === 'date') {
+                contentGroup.style.display = 'none';
+                uploadBtn.style.display = 'none';
+            } else {
+                contentGroup.style.display = 'block';
+                uploadBtn.style.display = 'none';
+                contentInput.value = data.content;
+                contentInput.placeholder = "Content";
+            }
+
+            // Adjust slider logic for images
+            if (data.type === 'image') {
+                sizeInput.max = 300;
+            } else {
+                sizeInput.max = 100;
+            }
+            sizeInput.value = parseInt(data.style.fontSize);
+        }
+
+        function updateSelectedProp(key, value) {
+            if (!selectedElementId) return;
+            const el = currentWidget.elements.find(e => e.id === selectedElementId);
+            
+            if (key === 'content') el.content = value;
+            else if (key === 'color') el.style.color = value;
+            else if (key === 'fontSize') el.style.fontSize = value;
+            else if (key === 'fontFamily') el.style.fontFamily = value;
+            else if (key === 'customFontUrl') el.customFontUrl = value;
+
+            renderEditorCanvas();
+            // Re-apply visual border since render rebuilds DOM
+            const domEl = document.querySelector(`[data-id="${selectedElementId}"]`);
+            if (domEl) domEl.style.border = '1px dashed var(--accent)';
+        }
+
+        function deleteSelectedElement() {
+            if (!selectedElementId) return;
+            currentWidget.elements = currentWidget.elements.filter(e => e.id !== selectedElementId);
+            renderEditorCanvas();
+            document.getElementById('inspector').style.display = 'none';
+            selectedElementId = null;
+        }
+
+        function openBgModal() {
+            document.getElementById('bg-modal').classList.add('show');
+        }
+        
+        function closeBgModal() {
+            document.getElementById('bg-modal').classList.remove('show');
+        }
+
+        function setCanvasBg(bg) {
+            currentWidget.background = bg;
+            renderEditorCanvas();
+        }
+
+        // --- Dragging Logic ---
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let draggedEl = null;
+
+        function startDrag(e) {
+            isDragging = true;
+            draggedEl = e.currentTarget;
+            const rect = draggedEl.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left - (rect.width / 2);
+            dragOffset.y = e.clientY - rect.top - (rect.height / 2);
+            
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', endDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging || !draggedEl) return;
+            
+            const canvasRect = document.getElementById('editor-canvas').getBoundingClientRect();
+            
+            let x = ((e.clientX - canvasRect.left) / canvasRect.width) * 100;
+            let y = ((e.clientY - canvasRect.top) / canvasRect.height) * 100;
+
+            x = Math.max(0, Math.min(100, x));
+            y = Math.max(0, Math.min(100, y));
+
+            draggedEl.style.left = x + '%';
+            draggedEl.style.top = y + '%';
+
+            const id = draggedEl.dataset.id;
+            const data = currentWidget.elements.find(el => el.id === id);
+            if (data) {
+                data.x = x;
+                data.y = y;
+            }
+        }
+
+        function endDrag() {
+            isDragging = false;
+            draggedEl = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', endDrag);
+        }
+
+        // --- Saving & Registering ---
+        function saveCurrentWidget() {
+            const existingIdx = widgets.findIndex(w => w.id === currentWidget.id);
+            if (existingIdx >= 0) widgets[existingIdx] = currentWidget;
+            else widgets.push(currentWidget);
+
+            localStorage.setItem('my_widgets', JSON.stringify(widgets));
+            
+            Gurasuraisu.registerWidget({
+                appName: 'Widget Maker',
+                widgetId: currentWidget.id,
+                title: currentWidget.name,
+                url: `/widget-maker.html?widgetId=${currentWidget.id}`,
+                defaultSize: [1, 1],
+                openUrl: '/widget-maker.html'
+            });
+
+            Gurasuraisu.showPopup('Widget saved');
+            switchView('dashboard');
+        }
+
+        async function preloadWidgetFonts(widgetData) {
+            const promises = [];
+            if (widgetData && widgetData.elements) {
+                widgetData.elements.forEach(el => {
+                    if (el.customFontUrl && el.style.fontFamily) {
+                        promises.push(loadAndRegisterFont(el.style.fontFamily, el.customFontUrl));
+                    }
+                });
+            }
+            await Promise.all(promises);
+        }
+
+        // --- Widget Rendering Mode ---
+        async function enterWidgetMode(widgetId) {
+            document.body.classList.add('widget-mode');
+            document.getElementById('app-toolbar').style.display = 'none';
+            document.querySelectorAll('.view-container').forEach(el => el.remove());
+            
+            const root = document.getElementById('widget-root');
+            root.style.display = 'block';
+
+            const allWidgets = JSON.parse(localStorage.getItem('my_widgets')) || [];
+            const data = allWidgets.find(w => w.id === widgetId);
+
+            if (!data) {
+                root.innerHTML = '<div style="color:var(--text-color); display:flex; justify-content:center; align-items:center; height:100%;">Not found</div>';
+                return;
+            }
+
+            await preloadWidgetFonts(data);
+
+            root.style.background = data.background;
+            root.style.backgroundSize = 'cover';
+            root.style.backgroundPosition = 'center';
+
+            data.elements.forEach(el => {
+                const domEl = createDomElement(el);
+                domEl.style.position = 'absolute';
+                domEl.style.left = el.x + '%';
+                domEl.style.top = el.y + '%';
+                domEl.style.transform = 'translate(-50%, -50%)';
+                
+                if (el.type === 'clock') {
+                    updateClock(domEl);
+                    setInterval(() => updateClock(domEl), 1000);
+                } else if (el.type === 'date') {
+                    updateDate(domEl);
+                    setInterval(() => updateDate(domEl), 60000);
+                }
+
+                root.appendChild(domEl);
+            });
+        }
+
+        function updateClock(el) {
+            const now = new Date();
+            el.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateDate(el) {
+            const now = new Date();
+            el.textContent = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+    </script>
+</body>
+</html>
